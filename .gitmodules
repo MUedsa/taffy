@@ -1,0 +1,3 @@
+[submodule "GCkcp"]
+	path = GCkcp
+	url = https://github.com/MUedsa/GCkcp.git

@@ -1,0 +1,4 @@
+rootProject.name = 'taffy'
+include 'GCkcp'
+include 'Grasscutter'
+
