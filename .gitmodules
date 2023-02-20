@@ -1,3 +1,4 @@
-[submodule "GCkcp"]
-	path = GCkcp
-	url = https://github.com/MUedsa/GCkcp.git
+[submodule "grasskcpper"]
+	path = grasskcpper
+	url = https://github.com/MUedsa/grasskcpper.git
+    branch = develop

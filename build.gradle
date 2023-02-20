@@ -15,7 +15,7 @@ dependencies {
     def httpclient5Version = '5.2.1'
     def protobuf_version = '3.21.12'
 
-    implementation project(':GCkcp')
+    implementation project(':grasskcpper')
     implementation project(':Grasscutter')
 
     implementation 'io.netty:netty-all:4.1.86.Final'

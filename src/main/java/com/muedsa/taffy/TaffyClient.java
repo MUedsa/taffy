@@ -121,8 +121,7 @@ public class TaffyClient {
             ukcp.close();
         }
         KcpClient kcpClient = new KcpClient();
-        kcpClient.init(KcpChannelConfig.newConfig(0));
-        ukcp = kcpClient.connect(regionServerAddress, KcpChannelConfig.newConfig(0), new KcpListener() {
+        kcpClient.init(KcpChannelConfig.newConfig(0), new KcpListener() {
             @Override
             public void onConnected(Ukcp ukcp) {
 
@@ -143,6 +142,7 @@ public class TaffyClient {
 
             }
         });
+        ukcp = kcpClient.connect(regionServerAddress, KcpChannelConfig.newConfig(0));
     }
 
     public void close(){

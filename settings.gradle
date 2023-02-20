@@ -1,4 +1,3 @@
 rootProject.name = 'taffy'
-include 'GCkcp'
+include 'grasskcpper'
 include 'Grasscutter'
-
