@@ -1,14 +1,9 @@
 package com.muedsa.taffy;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
-import com.google.gson.Gson;
 import com.muedsa.taffy.exception.*;
 import com.muedsa.taffy.http.JsonResponseHandler;
 import com.muedsa.taffy.model.*;
-import com.muedsa.taffy.utils.HttpClientUtils;
-import com.muedsa.taffy.utils.JsonUtils;
-import com.muedsa.taffy.utils.SignUtils;
+import com.muedsa.taffy.utils.*;
 import emu.grasscutter.net.proto.QueryRegionListHttpRspOuterClass;
 import emu.grasscutter.net.proto.RegionSimpleInfoOuterClass;
 import kcp.highway.KcpClient;
@@ -50,8 +45,12 @@ public class TaffyClient {
         QueryRegionListHttpRspOuterClass.QueryRegionListHttpRsp queryRegionListHttpRsp = QueryRegionListHttpRspOuterClass
                 .QueryRegionListHttpRsp
                 .parseFrom(Base64.getDecoder().decode(base64RegionListResponse.getBytes(StandardCharsets.UTF_8)));
-//            ByteString clientSecretKey = queryRegionListHttpRsp.getClientSecretKey();
-//            clientSecretKey.toByteArray();
+        byte[] seedSecretKeyBytes = queryRegionListHttpRsp.getClientSecretKey().toByteArray();
+        System.out.println(HexFormatUtils.beautify(seedSecretKeyBytes));
+        byte[] key = MhyCrypto.generateKey(HexFormat.fromHexDigitsToLong("c36eb21c18558efa")); //todo how to get long seed from clientSecretKey
+        byte[] clientCustomConfigBytes = queryRegionListHttpRsp.getClientCustomConfigEncrypted().toByteArray();
+        MhyCrypto.xor(clientCustomConfigBytes, key);
+        System.out.println(new String(clientCustomConfigBytes, StandardCharsets.UTF_8));
         ResponseValidator.valid(queryRegionListHttpRsp.getRetcode());
         Optional<RegionSimpleInfoOuterClass.RegionSimpleInfo> first = queryRegionListHttpRsp.getRegionListList().stream()
                 .filter(i -> i.getName().equals(config.getRegion()))
@@ -101,16 +100,16 @@ public class TaffyClient {
             String dispatchUrl = getDispatchUrl();
 
             // token verify
-            tokenVerify();
+            //tokenVerify();
 
             // token login
-            tokenLogin();
+            //tokenLogin();
 
             // query region server info and get address
-            regionServerAddress = queryRegionServerAddress();
+            //regionServerAddress = queryRegionServerAddress();
 
             // go kcp start
-            kcpInit();
+            //kcpInit();
         }catch (URISyntaxException | RequestFailedException | IOException e) {
             throw new AccountAuthException(e);
         }

@@ -1,7 +1,6 @@
 package com.muedsa.taffy.http;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.muedsa.taffy.utils.HttpClientUtils;
 import com.muedsa.taffy.utils.JsonUtils;
 import org.apache.hc.core5.http.ClassicHttpResponse;
 import org.apache.hc.core5.http.HttpEntity;

@@ -2,7 +2,7 @@ package com.muedsa.taffy.utils;
 
 /**
  * MT19937_64
- * Ask from ChatGPT
+ * from ChatGPT
  */
 
 public class MT19937_64 {
