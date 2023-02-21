@@ -21,7 +21,7 @@ public class HexFormatUtils {
         }
         StringBuilder builder = new StringBuilder();
         int maxLine = (int) Math.ceil(bytes.length / 16d);
-        int maxLabelDigitNumber = Math.max(8, maxLine / 16 + 1);
+        int maxLabelDigitNumber = Math.max(8, (int) Math.ceil(Math.log(maxLine) / Math.log(16)));
         int endIndex = bytes.length - 1;
         for (int line = 0; line < maxLine; line++) {
             int index = line * 16;

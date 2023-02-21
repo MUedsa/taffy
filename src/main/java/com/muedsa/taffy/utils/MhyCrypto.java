@@ -5,7 +5,7 @@ import java.nio.ByteBuffer;
 /**
  * Reference
  * <ul>
- *   <li><a href="https://forum.ragezone.com/f861/genshin-impact-private-server-1191004-print/index7.html">RageZone Thread: genshin impact private server</a></li>
+ *   <li><a href="https://forum.ragezone.com/f861/genshin-impact-private-server-1191004-print/index7.html">RageZone Thread: Genshin Impact Private Server</a></li>
  *   <li><a href="https://github.com/Crepe-Inc/DNTKCLI">DNTKCLI</a></li>
  *  <li><a href="https://github.com/NickTheHuy/YS-Freedom">YS-Freedom</a></li>
  * </ul>
