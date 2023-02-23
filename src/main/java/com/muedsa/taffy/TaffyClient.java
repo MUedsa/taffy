@@ -1,6 +1,7 @@
 package com.muedsa.taffy;
 
 import com.muedsa.taffy.exception.*;
+import com.muedsa.taffy.http.TaffyHttpClientFactory;
 import com.muedsa.taffy.http.JsonResponseHandler;
 import com.muedsa.taffy.model.*;
 import com.muedsa.taffy.utils.*;
@@ -31,7 +32,7 @@ public class TaffyClient {
 
     public TaffyClient(TaffyConfig config){
         this.config = config;
-        httpClient = HttpClientUtils.create(config.getHttpUserAgent());
+        httpClient = TaffyHttpClientFactory.create(config.getHttpUserAgent(), config.isDisableSSLVerify());
         state = TaffyState.NOT_AUTH;
     }
 
@@ -45,12 +46,7 @@ public class TaffyClient {
         QueryRegionListHttpRspOuterClass.QueryRegionListHttpRsp queryRegionListHttpRsp = QueryRegionListHttpRspOuterClass
                 .QueryRegionListHttpRsp
                 .parseFrom(Base64.getDecoder().decode(base64RegionListResponse.getBytes(StandardCharsets.UTF_8)));
-        byte[] seedSecretKeyBytes = queryRegionListHttpRsp.getClientSecretKey().toByteArray();
-        System.out.println(HexFormatUtils.beautify(seedSecretKeyBytes));
-        byte[] key = MhyCrypto.generateKey(HexFormat.fromHexDigitsToLong("c36eb21c18558efa")); //todo how to get long seed from clientSecretKey
-        byte[] clientCustomConfigBytes = queryRegionListHttpRsp.getClientCustomConfigEncrypted().toByteArray();
-        MhyCrypto.xor(clientCustomConfigBytes, key);
-        System.out.println(new String(clientCustomConfigBytes, StandardCharsets.UTF_8));
+        System.out.println("queryRegionListHttpRsp:{}\n" + JsonUtils.protobufToString(queryRegionListHttpRsp));
         ResponseValidator.valid(queryRegionListHttpRsp.getRetcode());
         Optional<RegionSimpleInfoOuterClass.RegionSimpleInfo> first = queryRegionListHttpRsp.getRegionListList().stream()
                 .filter(i -> i.getName().equals(config.getRegion()))
@@ -75,13 +71,13 @@ public class TaffyClient {
     private void tokenLogin()
             throws IOException{
         AuthToken authToken = new AuthToken(config.getAuthUid(), config.getAuthToken(), Boolean.FALSE);
-        TokenLoginRequest request = new TokenLoginRequest();
+            TokenLoginRequest request = new TokenLoginRequest();
         request.setChannelId(config.getClientChannelId());
         String data = JsonUtils.toJsonString(authToken);
         request.setData(data);
         request.setDevice("");
         request.setAppId(4);
-        request.setSign(SignUtils.sign(request, new byte[]{})); // todo need key for hmac sha256
+        request.setSign(SignUtils.sign(request, new byte[]{}, Collections.singletonList("sign"))); // todo need key for hmac sha256
         BaseResponse<TokenLoginResponse> response = TaffyAuthRequestFactory
                 .tokenLogin(config.getAuthServerUrl(), request)
                 .execute(httpClient)

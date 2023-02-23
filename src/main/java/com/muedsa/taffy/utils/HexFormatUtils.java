@@ -8,6 +8,7 @@ public class HexFormatUtils {
     private static final HexFormat UPPER_CASE_FORMAT = HexFormat.of().withUpperCase();
 
     private static final String SYSTEM_LINE_SEPARATOR = System.lineSeparator();
+
     public static String beautify(byte[] bytes) {
         return beautify(bytes, false, true);
     }
@@ -29,12 +30,12 @@ public class HexFormatUtils {
                 builder.append(fullPrefix(format.toHexDigits(index), maxLabelDigitNumber, "0"))
                         .append(": ");
             }
-            int lineEndIndex = Math.min(index + 16, endIndex);
+            int lineEndIndex = Math.min(index + 15, endIndex);
             while(index < lineEndIndex){
-                int partEndIndex = Math.min(index + 2, lineEndIndex);
-                builder.append(format.formatHex(bytes, index, partEndIndex));
-                if(partEndIndex == lineEndIndex){
-                    if(partEndIndex != endIndex){
+                int nextIndex = Math.min(index + 2, lineEndIndex + 1);
+                builder.append(format.formatHex(bytes, index, nextIndex));
+                if(nextIndex - 1 == lineEndIndex){
+                    if(nextIndex - 1 != endIndex){
                         builder.append(SYSTEM_LINE_SEPARATOR);
                     }
                 }else{
@@ -75,5 +76,13 @@ public class HexFormatUtils {
             content = prefixBuilder + content;
         }
         return content;
+    }
+
+    public static byte[] parseLowerCaseHex(String hex){
+        return LOWER_CASE_FORMAT.parseHex(hex);
+    }
+
+    public static byte[] parseUpperCaseHex(String hex){
+        return UPPER_CASE_FORMAT.parseHex(hex);
     }
 }

@@ -7,6 +7,8 @@ public class TaffyConfig {
 
     private String httpUserAgent;
 
+    private boolean disableSSLVerify;
+
     private String dispatchServerUrl;
 
     private String clientVersion;

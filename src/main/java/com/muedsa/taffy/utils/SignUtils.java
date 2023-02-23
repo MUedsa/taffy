@@ -10,18 +10,27 @@ import java.util.*;
 
 public class SignUtils {
 
-    public static  <T> String sign(T data, byte[] key){
+    public static <T> String toSignStr(T data, List<String> ignoreKeys) {
         ObjectNode objectNode = JsonUtils.objectMapper.valueToTree(data);
         Iterator<Map.Entry<String, JsonNode>> fields = objectNode.fields();
         List<String> params = new ArrayList<>();
         while (fields.hasNext()){
             Map.Entry<String, JsonNode> entry = fields.next();
-            params.add(entry.getKey() + "=" + entry.getValue().asText());
+            if(!ignoreKeys.contains(entry.getKey())){
+                params.add(entry.getKey() + "=" + entry.getValue().asText());
+            }
         }
         params.sort(String::compareTo);
-        String unsignedString = String.join("&", params);
+        return String.join("&", params);
+    }
+
+    public static <T> String sign(String signStr, byte[] key){
         HmacUtils hm1 = new HmacUtils(HmacAlgorithms.HMAC_SHA_256, key);
-        return hm1.hmacHex(unsignedString.getBytes(StandardCharsets.UTF_8));
+        return hm1.hmacHex(signStr.getBytes(StandardCharsets.UTF_8));
+    }
+
+    public static <T> String sign(T data, byte[] key, List<String> ignoreKeys){
+        return sign(toSignStr(data, ignoreKeys), key);
     }
 
 }

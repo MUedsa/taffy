@@ -1,7 +1,14 @@
 
-import com.muedsa.taffy.utils.MhyCrypto;
+import com.muedsa.taffy.ResponseValidator;
+import com.muedsa.taffy.TaffyAuthRequestFactory;
+import com.muedsa.taffy.http.TaffyHttpClientFactory;
+import com.muedsa.taffy.utils.*;
+import emu.grasscutter.net.proto.QueryRegionListHttpRspOuterClass;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 import java.util.HexFormat;
 
 public class MhyCryptoTest {
@@ -12,9 +19,34 @@ public class MhyCryptoTest {
 
     @Test
     public void generateKeyTest(){
-        byte[] generateKey = MhyCrypto.generateKey(SECRET_KEY_SEED);
+        byte[] generateKey = MhyCrypto.generateXorKey(SECRET_KEY_SEED);
         for (int i = 0; i < SECRET_KEY.length; i++) {
             assert generateKey[i] == SECRET_KEY[i];
         }
+    }
+
+    @Test
+    public void dispatchConfigTest() throws IOException {
+        String base64RegionListResponse = TaffyAuthRequestFactory.queryRegionList("https://127.0.0.1",
+                        "CNRELWin1.0.0", 1, 1, 0)
+                .execute(TaffyHttpClientFactory.create("", true))
+                .returnContent().asString(StandardCharsets.UTF_8);
+        QueryRegionListHttpRspOuterClass.QueryRegionListHttpRsp queryRegionListHttpRsp = QueryRegionListHttpRspOuterClass
+                .QueryRegionListHttpRsp
+                .parseFrom(Base64.getDecoder().decode(base64RegionListResponse.getBytes(StandardCharsets.UTF_8)));
+        System.out.println("queryRegionListHttpRsp:{}\n" + JsonUtils.protobufToString(queryRegionListHttpRsp));
+        ResponseValidator.valid(queryRegionListHttpRsp.getRetcode());
+        byte[] clientSecretKeyBytes = queryRegionListHttpRsp.getClientSecretKey().toByteArray();
+        byte[] clientCustomConfigBytes = queryRegionListHttpRsp.getClientCustomConfigEncrypted().toByteArray();
+        byte[] keyBytes = new byte[16];
+        byte[] dataBytes = new byte[2048];
+        System.out.println("clientSecretKey:\n" + HexFormatUtils.beautify(clientSecretKeyBytes));
+        System.arraycopy(clientSecretKeyBytes, 8, keyBytes, 0, 16);
+        System.arraycopy(clientSecretKeyBytes, 28, dataBytes, 0, 2048);
+        System.out.println("key:\n" + HexFormatUtils.beautify(keyBytes));
+        System.out.println("data:\n" + HexFormatUtils.beautify(dataBytes));
+        long seed = MhyCrypto.getSeed(keyBytes, dataBytes);
+        MhyCrypto.xor(clientCustomConfigBytes, MhyCrypto.generateEc2bXorKey(seed));
+        System.out.println(new String(clientCustomConfigBytes, StandardCharsets.UTF_8));
     }
 }
